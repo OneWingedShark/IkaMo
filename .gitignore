@@ -1,3 +1,6 @@
+# Object directory
+obj/**
+
 # Object file
 *.o
 

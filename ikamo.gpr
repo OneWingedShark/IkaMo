@@ -1,0 +1,53 @@
+with "aws.gpr";
+
+project IkaMo is
+
+   for Object_Dir use "obj";
+   for Exec_Dir use ".";
+   for Source_Dirs use (".", "src");
+   for Main use ("ikamo.adb");
+   type Xmlada_Kind_Type is
+      ("static", "relocatable");
+   Library_Type : Xmlada_Kind_Type := external ("LIBRARY_TYPE");
+   type Build_Kind is
+      ("default", "relocatable");
+   Aws_Build : Build_Kind := external ("AWS_BUILD");
+
+   package Ide is
+      for Documentation_Dir use "doc";
+   end Ide;
+
+   package Builder is
+      for Default_Switches ("ada") use ("-j4");
+   end Builder;
+
+   package Compiler is
+
+      case Library_Type is
+
+         when "static" =>
+
+            case Aws_Build is
+
+               when "default" =>
+                  for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-gnata", "-gnat12", "-gnatn", "-gnatel");
+
+               when "relocatable" =>
+                  for Default_Switches ("ada") use ("-O3", "-gnato", "-fstack-check", "-gnata", "-gnat12", "-gnatE", "-ffunction-sections", "-fdata-sections");
+            end case;
+
+         when "relocatable" =>
+            for Default_Switches ("ada") use ("-O3", "-gnato", "-fstack-check", "-gnata", "-gnat12", "-gnatE", "-ffunction-sections", "-fdata-sections");
+      end case;
+   end Compiler;
+
+   package Binder is
+      for Default_Switches ("ada") use ("-shared");
+   end Binder;
+
+   package Linker is
+      for Default_Switches ("ada") use ("-Wl,--gc-sections");
+   end Linker;
+
+end IkaMo;
+
